@@ -22,9 +22,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
 
     /**
-     * @see "This method register available enpoint to listen on weosocket"
-     * @param  registry mandatory object of StompEndpointRegistry class
-     * @return void
+     * This method registers available endpoint to listen on websocket
+     *
+     * @param registry mandatory object of StompEndpointRegistry class
      */
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {

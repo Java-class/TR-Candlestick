@@ -37,7 +37,8 @@ public class QuoteHistoryService {
                 .isin(isin)
                 .price(price)
                 .receivedDate(receivedTime)
-                .timeChunk(DateUtil.getTimeChunk(receivedTime)).build();
+                .timeChunk(DateUtil.getTimeChunk(receivedTime))
+                .build();
         return quoteHistoryRepository.save(quoteHistoryHash);
     }
 }

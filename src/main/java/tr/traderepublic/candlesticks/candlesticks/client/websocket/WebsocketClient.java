@@ -36,7 +36,7 @@ public class WebsocketClient {
                     .buildAsync(URI.create(url + endpoint), listener);
             webSocket.get();
         } catch (Exception ex) {
-            log.error("ddd", ex);
+            log.error("exception happened during connect to websocket", ex);
             throw new WebSocketNotConnectedException(url + endpoint);
         }
     }
