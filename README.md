@@ -36,6 +36,28 @@ In summary, the Candlestick System is a robust and scalable solution for computi
 
 
 ## Redis Structure
+All Incoming Data including both Instrument and Quote are stored in Redis DB.
+- InstrumentHash 
+  - is an entity for store Instrument which has an Identifier based on ISIN
+  - Also, the description stored in Instrument Hash.
+- QuoteHash
+  - is an entity to store incoming Quote data and has an UUID Random Identifier
+  - Indexed with Instrument ISIN
+  - store price
+  - timestamp received
+  - time chunk
+- Candlestick Hash
+  - is an entity to store computed candlestick data based on instrument and stored quote data
+  - UUID Random Identifier
+  - ISIN
+  - time chunk
+  - open price timestamp (first incoming quote in time chunk)
+  - open price
+  - high price
+  - low price
+  - close price timestamp (last incoming quote in time chunk)
+  - compute timestamp (time of compute candlestick)
+
 ## Compute Algorithm
 ## Tech Stack
 - Java 17
