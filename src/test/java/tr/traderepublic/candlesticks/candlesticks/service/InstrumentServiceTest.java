@@ -18,6 +18,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.testcontainers.junit.jupiter.Testcontainers;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -31,10 +32,8 @@ import static org.assertj.core.api.Assertions.fail;
  * @project CandleSticks
  * @created 2023-05-20 22:42
  */
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+
 @Slf4j
-@SpringBootTest(classes = CandlestickApplication.class)
-@Testcontainers
 class InstrumentServiceTest extends BaseIT {
 
     @Autowired
