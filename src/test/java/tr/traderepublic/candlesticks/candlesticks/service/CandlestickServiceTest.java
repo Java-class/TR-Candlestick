@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import tr.traderepublic.candlesticks.candlesticks.BaseIT;
+import tr.traderepublic.candlesticks.candlesticks.consts.ConstantConfig;
 import tr.traderepublic.candlesticks.candlesticks.model.data.CandlestickHash;
 import tr.traderepublic.candlesticks.candlesticks.model.data.InstrumentHash;
 import tr.traderepublic.candlesticks.candlesticks.model.data.QuoteHistoryHash;
@@ -13,6 +14,9 @@ import tr.traderepublic.candlesticks.candlesticks.repository.CandlestickReposito
 import tr.traderepublic.candlesticks.candlesticks.repository.InstrumentRepository;
 import tr.traderepublic.candlesticks.candlesticks.util.DateUtil;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -21,8 +25,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * @author Mostafa Anbarmoo
@@ -43,10 +47,11 @@ class CandlestickServiceTest extends BaseIT {
     @Autowired
     private CandlestickRepository candlestickRepository;
 
-
     @Test
     void computeCandlestick() {
-        long startTime = System.currentTimeMillis();
+        LocalDateTime localDateTime = LocalDateTime.of(2023, 5, 22, 0, 40, 0);
+        ZonedDateTime zdt = localDateTime.atZone(ZoneId.of(ConstantConfig.TIMEZONE_ID));
+        long startTime = zdt.toInstant().toEpochMilli();
         String timeChunk = DateUtil.getTimeChunk(startTime);
         List<String> randomIsin = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
@@ -61,7 +66,7 @@ class CandlestickServiceTest extends BaseIT {
             List<QuoteHistoryHash> quoteHistoryHashList = new ArrayList<>();
             for (int i = 0; i < 10; i++) {
                 double randomPrice = RandomUtils.nextDouble(100.0, 150.0);
-                long randomReceivedTime = RandomUtils.nextLong(startTime, startTime + 59000);
+                long randomReceivedTime = startTime + (i);
                 QuoteHistoryHash quoteHistoryHash = quoteHistoryService.save(isin, randomPrice, randomReceivedTime);
                 quoteHistoryHashList.add(quoteHistoryHash);
             }
@@ -73,30 +78,38 @@ class CandlestickServiceTest extends BaseIT {
             Optional<InstrumentHash> optionalInstrumentHash = instrumentRepository.findById(isin);
             if (optionalInstrumentHash.isPresent()) {
                 InstrumentHash instrumentHash = optionalInstrumentHash.get();
-                candlestickService.computeCandlestick(instrumentHash, timeChunk);
-                List<CandlestickHash> candlestickHashList = candlestickRepository.findByIsinEquals(isin);
-                if (candlestickHashList.size() == 1) {
-                    CandlestickHash computedCandlestickHash = candlestickHashList.get(0);
-                    CandlestickItem candlestickItem = new CandlestickItem(computedCandlestickHash.getOpenTimestamp(),
-                            computedCandlestickHash.getOpenPrice(),
-                            computedCandlestickHash.getLowPrice(),
-                            computedCandlestickHash.getHighPrice(),
-                            computedCandlestickHash.getClosePrice(),
-                            computedCandlestickHash.getCloseTimestamp());
-                    computedCandlestickHashHashMap.put(isin, candlestickItem);
+                boolean result = candlestickService.computeCandlestick(instrumentHash, timeChunk);
+                if (result) {
+                    List<CandlestickHash> candlestickHashList = candlestickRepository.findByIsinEquals(isin);
+                    if (candlestickHashList.size() == 1) {
+                        CandlestickHash computedCandlestickHash = candlestickHashList.get(0);
+                        CandlestickItem candlestickItem = new CandlestickItem(computedCandlestickHash.getOpenTimestamp(),
+                                computedCandlestickHash.getOpenPrice(),
+                                computedCandlestickHash.getLowPrice(),
+                                computedCandlestickHash.getHighPrice(),
+                                computedCandlestickHash.getClosePrice(),
+                                computedCandlestickHash.getCloseTimestamp());
+                        computedCandlestickHashHashMap.put(isin, candlestickItem);
+                    } else {
+                        fail("more than one element found during test compute candlestick.");
+                    }
+                } else {
+                    fail("compute candlestick failed during test compute candlestick service");
                 }
+            } else {
+                fail("instrument data not found during test compute candlestick.");
             }
         });
 
         HashMap<String, CandlestickItem> actualCandlestickHashHashMap = new HashMap<>();
         for (String isin : randomIsin) {
             List<QuoteHistoryHash> quoteHistoryHashList = quoteData.get(isin);
-            Date actualOpenPriceDate = DateUtil.getRoundFloor(quoteHistoryHashList.stream().min(Comparator.comparingLong(QuoteHistoryHash::getReceivedDate)).get().getReceivedDate());
+            Date actualOpenPriceDate = DateUtil.getRoundFloor(quoteHistoryHashList.get(0).getReceivedDate());
             double actualOpenPrice = quoteHistoryHashList.stream().min(Comparator.comparing(QuoteHistoryHash::getReceivedDate)).get().getPrice();
             double actualLowestPrice = quoteHistoryHashList.stream().min(Comparator.comparing(QuoteHistoryHash::getPrice)).get().getPrice();
             double actualHighestPrice = quoteHistoryHashList.stream().max(Comparator.comparing(QuoteHistoryHash::getPrice)).get().getPrice();
             double actualClosePrice = quoteHistoryHashList.stream().max(Comparator.comparing(QuoteHistoryHash::getReceivedDate)).get().getPrice();
-            Date actualClosePriceDate = DateUtil.getRoundCeiling(quoteHistoryHashList.stream().max(Comparator.comparingLong(QuoteHistoryHash::getReceivedDate)).get().getReceivedDate());
+            Date actualClosePriceDate = DateUtil.getRoundCeiling(quoteHistoryHashList.get(quoteHistoryHashList.size() - 1).getReceivedDate());
             CandlestickItem candlestickItem = new CandlestickItem(actualOpenPriceDate,
                     actualOpenPrice,
                     actualLowestPrice,
@@ -108,7 +121,8 @@ class CandlestickServiceTest extends BaseIT {
 
         randomIsin.forEach(isin -> {
             if (!actualCandlestickHashHashMap.get(isin).equals(computedCandlestickHashHashMap.get(isin))) {
-                log.info("@@@@@@@@@ actual item:{}, \n computedItem:{}", actualCandlestickHashHashMap.get(isin), computedCandlestickHashHashMap.get(isin));
+                log.info("conflict found during test candlestick computing algorithm, actual item:{}, \n computedItem:{}",
+                        actualCandlestickHashHashMap.get(isin), computedCandlestickHashHashMap.get(isin));
                 fail("test of candlestick computation algorithm failed");
             }
         });
@@ -119,14 +133,44 @@ class CandlestickServiceTest extends BaseIT {
     void fetchLastCandlestick() {
         try {
             String randomIsin = UUID.randomUUID().toString();
-            InstrumentHash instrumentHash = InstrumentHash.builder().id(randomIsin).description("this is instrument for test delete candlestick history").build();
+            InstrumentHash instrumentHash = InstrumentHash.builder()
+                    .id(randomIsin)
+                    .description("this is instrument for test delete candlestick history")
+                    .build();
             instrumentRepository.save(instrumentHash);
             List<CandlestickHash> candlestickHashList = new ArrayList<>();
-            CandlestickHash ch1 = CandlestickHash.builder().id("ch1").isin(randomIsin).openTimestamp(new Date(System.currentTimeMillis())).openPrice(112.02).closePrice(123.5).lowPrice(109.0).highPrice(129.45).computeTimestamp(System.currentTimeMillis()).build();
+            CandlestickHash ch1 = CandlestickHash.builder()
+                    .id("ch1")
+                    .isin(randomIsin)
+                    .openTimestamp(new Date(System.currentTimeMillis()))
+                    .openPrice(112.02)
+                    .closePrice(123.5)
+                    .lowPrice(109.0)
+                    .highPrice(129.45)
+                    .computeTimestamp(System.currentTimeMillis())
+                    .build();
 
-            CandlestickHash ch2 = CandlestickHash.builder().id("ch2").isin(randomIsin).openTimestamp(new Date(System.currentTimeMillis() + 60_000)).openPrice(234.0).closePrice(218.11).lowPrice(209.5).highPrice(234.0).computeTimestamp(System.currentTimeMillis() + 60_000).build();
+            CandlestickHash ch2 = CandlestickHash.builder()
+                    .id("ch2")
+                    .isin(randomIsin)
+                    .openTimestamp(new Date(System.currentTimeMillis() + 60_000))
+                    .openPrice(234.0)
+                    .closePrice(218.11)
+                    .lowPrice(209.5)
+                    .highPrice(234.0)
+                    .computeTimestamp(System.currentTimeMillis() + 60_000)
+                    .build();
 
-            CandlestickHash ch3 = CandlestickHash.builder().id("ch3").isin(randomIsin).openTimestamp(new Date(System.currentTimeMillis() + 60_000)).openPrice(97.0).closePrice(98.6).lowPrice(95.11).highPrice(99.45).computeTimestamp(System.currentTimeMillis() + 60_000).build();
+            CandlestickHash ch3 = CandlestickHash.builder()
+                    .id("ch3")
+                    .isin(randomIsin)
+                    .openTimestamp(new Date(System.currentTimeMillis() + 60_000))
+                    .openPrice(97.0)
+                    .closePrice(98.6)
+                    .lowPrice(95.11)
+                    .highPrice(99.45)
+                    .computeTimestamp(System.currentTimeMillis() + 60_000)
+                    .build();
             candlestickHashList.add(ch1);
             candlestickHashList.add(ch2);
             candlestickHashList.add(ch3);
@@ -166,11 +210,29 @@ class CandlestickServiceTest extends BaseIT {
             List<QuoteHistoryHash> quoteHistoryHashList = new ArrayList<>();
             String randomIsin = UUID.randomUUID().toString();
             String timeChunk = DateUtil.getTimeChunk(System.currentTimeMillis());
-            QuoteHistoryHash qh1 = QuoteHistoryHash.builder().receivedDate(System.currentTimeMillis()).id(UUID.randomUUID().toString()).isin(randomIsin).timeChunk(timeChunk).price(112.07).build();
+            QuoteHistoryHash qh1 = QuoteHistoryHash.builder()
+                    .receivedDate(System.currentTimeMillis())
+                    .id(UUID.randomUUID().toString())
+                    .isin(randomIsin)
+                    .timeChunk(timeChunk)
+                    .price(112.07)
+                    .build();
 
-            QuoteHistoryHash qh2 = QuoteHistoryHash.builder().receivedDate(System.currentTimeMillis()).id(UUID.randomUUID().toString()).isin(randomIsin).timeChunk(timeChunk).price(119.11).build();
+            QuoteHistoryHash qh2 = QuoteHistoryHash.builder()
+                    .receivedDate(System.currentTimeMillis() + 1000)
+                    .id(UUID.randomUUID().toString())
+                    .isin(randomIsin)
+                    .timeChunk(timeChunk)
+                    .price(119.11)
+                    .build();
 
-            QuoteHistoryHash qh3 = QuoteHistoryHash.builder().receivedDate(System.currentTimeMillis()).id(UUID.randomUUID().toString()).isin(randomIsin).timeChunk(timeChunk).price(123.09).build();
+            QuoteHistoryHash qh3 = QuoteHistoryHash.builder()
+                    .receivedDate(System.currentTimeMillis() + 2000)
+                    .id(UUID.randomUUID().toString())
+                    .isin(randomIsin)
+                    .timeChunk(timeChunk)
+                    .price(123.09)
+                    .build();
 
             quoteHistoryHashList.add(qh1);
             quoteHistoryHashList.add(qh2);

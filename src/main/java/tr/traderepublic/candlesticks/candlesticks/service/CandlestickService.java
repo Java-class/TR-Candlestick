@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 import tr.traderepublic.candlesticks.candlesticks.consts.ConstantConfig;
@@ -52,7 +51,7 @@ public class CandlestickService {
      * The computeCandlestickJob for compute previous time chunk
      * We Call computeCandlestick for each valid instrument
      */
-    @Scheduled(fixedRateString = "${service.candlestick.schedule.time.rate}")
+    //@Scheduled(fixedRateString = "${service.candlestick.schedule.time.rate}")
     public void computeCandlestickJob() {
         try {
             log.info("start to compute candlestick data...");
@@ -122,7 +121,7 @@ public class CandlestickService {
 
     public CandlestickHash fetchLastCandlestick(InstrumentHash instrumentHash) {
         List<CandlestickHash> candlestickHashList = candlestickRepository.findByIsinEquals(instrumentHash.getId());
-        Optional<CandlestickHash> optionalLastCandlestick = candlestickHashList.stream().max(Comparator.comparingDouble(CandlestickHash::getComputeTimestamp));
+        Optional<CandlestickHash> optionalLastCandlestick = candlestickHashList.stream().max(Comparator.comparing(CandlestickHash::getComputeTimestamp));
         return optionalLastCandlestick.orElse(null);
     }
 
@@ -141,12 +140,12 @@ public class CandlestickService {
                 .timeChunk(timeChunk)
                 .computeTimestamp(System.currentTimeMillis())
                 .isin(instrument.getId())
-                .openTimestamp(computeOpenDate(openDate))
+                .openTimestamp(openDate)
                 .openPrice(openPrice)
                 .lowPrice(lowPrice)
                 .highPrice(highPrice)
                 .closePrice(closePrice)
-                .closeTimestamp(computeCloseDate(closeDate))
+                .closeTimestamp(closeDate)
                 .build();
         return candlestickRepository.save(computedCandlestick);
     }

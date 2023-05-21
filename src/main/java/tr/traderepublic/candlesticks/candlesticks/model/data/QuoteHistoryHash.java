@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.index.Indexed;
@@ -24,6 +25,7 @@ import java.io.Serializable;
 @Getter
 @RedisHash(value = "QuoteHistory", timeToLive = 10 * 60)
 @Builder
+@ToString
 public class QuoteHistoryHash implements Serializable {
     @Id
     private String id;

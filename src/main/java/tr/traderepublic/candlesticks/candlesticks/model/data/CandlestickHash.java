@@ -44,7 +44,7 @@ public class CandlestickHash implements Serializable {
     private double closePrice;
     private Date closeTimestamp;
     /**
-     * The compute time of candlestick
+     * The computed time of candlestick
      */
     private long computeTimestamp;
 }
