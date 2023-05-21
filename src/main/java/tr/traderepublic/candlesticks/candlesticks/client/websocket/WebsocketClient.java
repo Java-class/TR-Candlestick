@@ -21,6 +21,13 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 public class WebsocketClient {
 
+    /**
+     * The connection method for connect through WebSocket
+     *
+     * @param url      mandatory object of websocket producer
+     * @param endpoint the endpoint of websocket to be listened
+     * @param listener the listener method to handle incoming message from websocket
+     */
     public void connect(String url, String endpoint, WebSocket.Listener listener) throws WebSocketNotConnectedException {
         try {
             CompletableFuture<WebSocket> webSocket = HttpClient

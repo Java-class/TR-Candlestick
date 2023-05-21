@@ -33,13 +33,20 @@ public class InstrumentWebSocketReader implements WebSocket.Listener {
     @Value("${service.partnet.producer.address}")
     private String url;
 
+
+    /**
+     * The Contractor of InstrumentWebSocketReader class
+     *
+     * @param websocketClient    mandatory object of WebSocketClientClass class
+     * @param processDataService is the Parser of Incoming Object from WebSocket
+     */
     public InstrumentWebSocketReader(WebsocketClient websocketClient, InstrumentDataProcessor processDataService) {
         this.websocketClient = websocketClient;
         this.processDataService = processDataService;
     }
 
     /**
-     * Websocket client listening to Instrument events coming from the Partner Service
+     * The Listener of Websocket Client for Incoming Instrument Message
      */
     @PostConstruct
     public void listenInstrument() {
@@ -57,6 +64,13 @@ public class InstrumentWebSocketReader implements WebSocket.Listener {
 
     }
 
+    /**
+     * The onText Method for Parsing Incoming Instrument Message
+     *
+     * @param webSocket mandatory object of WebSocket interface
+     * @param data      is the message
+     * @param last      is the boolean flog for closing message
+     */
     @Override
     public CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last) {
         try {
@@ -70,12 +84,28 @@ public class InstrumentWebSocketReader implements WebSocket.Listener {
         return WebSocket.Listener.super.onText(webSocket, data, last);
     }
 
+    /**
+     * The onClose method where WebSocket Method Closed.
+     * We Call the listenInstrument method again for accept new instrument
+     *
+     * @param webSocket  mandatory object of WebSocket interface
+     * @param statusCode is the status code of message
+     */
+
     @Override
     public CompletionStage<?> onClose(WebSocket webSocket, int statusCode, String reason) {
         listenInstrument();
         return WebSocket.Listener.super.onClose(webSocket, statusCode, reason);
     }
 
+
+    /**
+     * The onError method where WebSocket method closed.
+     * We Call the listenInstrument method again for accept new instrument
+     *
+     * @param webSocket mandatory object of WebSocket interface
+     * @param error     is the throwable object to handle exception
+     */
     @Override
     public void onError(WebSocket webSocket, Throwable error) {
         log.error("Error (Websocket) on {} with message: {}", ConstantConfig.INSTRUMENTS_ENDPOINT, error.getMessage());
@@ -83,6 +113,11 @@ public class InstrumentWebSocketReader implements WebSocket.Listener {
         WebSocket.Listener.super.onError(webSocket, error);
     }
 
+    /**
+     * The onOpen method to Open WebSocket connection
+     *
+     * @param webSocket mandatory object of WebSocket interface
+     */
     @Override
     public void onOpen(WebSocket webSocket) {
         log.error("Opened {} Websocket endpoint with protocol: {}", ConstantConfig.INSTRUMENTS_ENDPOINT, webSocket.getSubprotocol());

@@ -18,6 +18,14 @@ import java.util.Date;
 
 public class DateUtil {
 
+    /**
+     * The geTimeChunk method for generate time chunk
+     * This method return hour and minute of input time chunk
+     * if input data represent the timestamp for 21:10:02 it will return 2102
+     *
+     * @param timeMilliSeconds the time in milliseconds for convert to chunk time
+     * @return String time chunk
+     */
     public static String getTimeChunk(long timeMilliSeconds) {
         LocalDateTime ldt = Instant.ofEpochMilli(timeMilliSeconds)
                 .atZone(ZoneId.of(ConstantConfig.TIMEZONE_ID)).toLocalDateTime();
@@ -32,6 +40,13 @@ public class DateUtil {
         return hour + minute;
     }
 
+    /**
+     * The getRoundFloor method for generate round floor of input date time
+     * if input data represent the timestamp for 2023-05-21 21:10:02 it will return 2023-05-21 21:10:00
+     *
+     * @param timeMilliSeconds the time in milliseconds for convert to time floor
+     * @return Date
+     */
     public static Date getRoundFloor(long timeMilliSeconds) {
         LocalDateTime ldt = Instant.ofEpochMilli(timeMilliSeconds)
                 .atZone(ZoneId.of(ConstantConfig.TIMEZONE_ID)).toLocalDateTime();
@@ -41,6 +56,13 @@ public class DateUtil {
                         .toInstant());
     }
 
+    /**
+     * The getRoundCeiling method for generate round ceiling of input date time
+     * if input data represent the timestamp for 2023-05-21 21:10:02 it will return 2023-05-21 21:11:00
+     *
+     * @param timeMilliSeconds the time in milliseconds for convert to time ceiling
+     * @return Date
+     */
     public static Date getRoundCeiling(long timeMilliSeconds) {
         LocalDateTime ldt = Instant.ofEpochMilli(timeMilliSeconds)
                 .atZone(ZoneId.of(ConstantConfig.TIMEZONE_ID)).toLocalDateTime();

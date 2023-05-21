@@ -32,6 +32,9 @@ public class CandlestickHash implements Serializable {
     private String id;
     @Indexed
     private String isin;
+    /**
+     * The time chunk of candlestick
+     */
     @Indexed
     private String timeChunk;
     private Date openTimestamp;
@@ -40,5 +43,8 @@ public class CandlestickHash implements Serializable {
     private double lowPrice;
     private double closePrice;
     private Date closeTimestamp;
+    /**
+     * The compute time of candlestick
+     */
     private long computeTimestamp;
 }

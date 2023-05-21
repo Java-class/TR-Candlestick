@@ -9,5 +9,10 @@ package tr.traderepublic.candlesticks.candlesticks.service;
  */
 
 public interface DataProcessor<T> {
+    /**
+     * The processData method for store an incoming message from WebSocket
+     *
+     * @param t mandatory input for Message (Instrument or Quote)
+     */
     void processData(T t);
 }

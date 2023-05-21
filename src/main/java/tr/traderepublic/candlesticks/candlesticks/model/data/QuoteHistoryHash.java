@@ -30,7 +30,13 @@ public class QuoteHistoryHash implements Serializable {
     @Indexed
     private String isin;
     private double price;
+    /**
+     * The time of received quote
+     */
     private long receivedDate;
+    /**
+     * The time chunk of received quote
+     */
     @Indexed
     private String timeChunk;
 }

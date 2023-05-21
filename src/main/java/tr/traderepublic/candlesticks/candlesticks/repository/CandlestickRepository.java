@@ -16,7 +16,18 @@ import java.util.List;
 @Repository
 public interface CandlestickRepository extends CrudRepository<CandlestickHash, String> {
 
+    /**
+     * The findByIsinEquals method for fetch list of Candlestick history for an instrument
+     *
+     * @param isin mandatory object of Instrument identifier
+     * @return List of CandlestickHash Object
+     */
     List<CandlestickHash> findByIsinEquals(String isin);
 
+    /**
+     * The deleteAllByIsinEquals method for delete Candlestick history after remove instrument
+     *
+     * @param isin mandatory object of Instrument identifier
+     */
     void deleteAllByIsinEquals(String isin);
 }

@@ -15,5 +15,12 @@ import java.util.List;
  */
 @Repository
 public interface QuoteHistoryRepository extends CrudRepository<QuoteHistoryHash, String> {
+    /**
+     * The findByIsinEqualsAndTimeChunkEquals method for fetch list of quote history for an instrument based on desired timeChunk
+     *
+     * @param isin mandatory object of Instrument identifier
+     * @param timeChunk desired time chunk for fetch quote history
+     * @return List of CandlestickHash Object
+     */
     List<QuoteHistoryHash> findByIsinEqualsAndTimeChunkEquals(String isin, String timeChunk);
 }

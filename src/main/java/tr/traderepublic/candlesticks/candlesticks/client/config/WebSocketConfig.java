@@ -20,6 +20,12 @@ import tr.traderepublic.candlesticks.candlesticks.consts.ConstantConfig;
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
+
+    /**
+     * @see "This method register available enpoint to listen on weosocket"
+     * @param  registry mandatory object of StompEndpointRegistry class
+     * @return void
+     */
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint(ConstantConfig.INSTRUMENTS_ENDPOINT, ConstantConfig.QUOTES_ENDPOINT);

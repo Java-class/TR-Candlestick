@@ -9,8 +9,23 @@ package tr.traderepublic.candlesticks.candlesticks.consts;
  */
 
 public class ConstantConfig {
+    /**
+     * The instrument endpoint canonical path
+     */
     public final static String INSTRUMENTS_ENDPOINT = "/instruments";
+
+    /**
+     * The quote endpoint canonical path
+     */
     public final static String QUOTES_ENDPOINT = "/quotes";
+
+    /**
+     * Index of first quote received in quote history list based on specific timeChunk
+     */
     public final static Integer FIRST_QUOTE_RECEIVED_INDEX = 0;
+
+    /**
+     * Default System timezone
+     */
     public final static String TIMEZONE_ID = "Asia/Tehran";
 }

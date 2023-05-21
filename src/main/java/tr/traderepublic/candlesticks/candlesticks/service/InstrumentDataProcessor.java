@@ -20,6 +20,12 @@ public class InstrumentDataProcessor implements DataProcessor<InstrumentMessage>
 
     private final InstrumentService instrumentService;
 
+    /**
+     * The processData method for store an incoming message from WebSocket
+     * We call save or delete method of InstrumentService based on message type (ADD or DELETE)
+     *
+     * @param instrumentMessage mandatory input for incoming instrument message
+     */
     @Override
     public void processData(InstrumentMessage instrumentMessage) {
         switch (instrumentMessage.getType()) {
