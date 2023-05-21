@@ -94,11 +94,22 @@ configurable and based on desired time chunk (in this sample time chunk is a min
 
 Every time computing job starts, it follows these steps:
 
-- Fetch all available instrument from database
+- Fetch all available instrument from database.
 - For each instrument
-  - 
-
-
+    - Fetch list of quote from previous time chunk (a minute before).
+    - Calculate the open price date. It's the first element of fetched list.
+    - Calculate the open price. It's the first element of fetched list.
+    - Calculate the lowest price during this chunk time.( sorted fetched list based on quote hash price and find the
+      minimum
+      item)
+    - Calculate the highest price during this chunk time.( sorted fetched list based on quote hash price and find the
+      maximum
+      item)
+    - Calculate the close price date. It's the last element of quote fetched list.
+    - Calculate the close price. It's the last element of quote fetched list.
+    - Create new Candlestick Hash based on Calculated data and store in Redis.
+    - If quoted list is empty, it means there isn't any new quote write in websocket, so we must calculate the current
+      candlestick based on the last candlestick from redis.
 
 ## Tech Stack
 
