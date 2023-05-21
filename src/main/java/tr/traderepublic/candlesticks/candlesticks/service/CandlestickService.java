@@ -19,6 +19,7 @@ import tr.traderepublic.candlesticks.candlesticks.util.DateUtil;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -76,29 +77,53 @@ public class CandlestickService {
     /**
      * The computeCandlestick method for compute candlestick input instrument
      * We Call the saveCandlestickHistory method after successfully candlestick computed
+     * This method computed based on chunk time duration before and if there isn't any quote received, it will be generated
+     * the candlestick based on last candlestick computed
      *
      * @param instrument mandatory object of instrument
      * @param timeChunk  current time chunk for computing candlestick
-     * @return boolad true if successfully candlestick computed
+     * @return boolean true if successfully candlestick computed
      */
     protected boolean computeCandlestick(InstrumentHash instrument, String timeChunk) {
         boolean result = true;
         try {
+            Date openDate = null;
+            double openPrice = -1;
+            double closePrice = -1;
+            double lowPrice = -1;
+            double highPrice = -1;
+            Date closeDate = null;
             List<QuoteHistoryHash> quoteHistoryHashList = quoteHistoryRepository.findByIsinEqualsAndTimeChunkEquals(instrument.getId(), timeChunk);
-            QuoteHistoryHash openPrice = computeOpenPrice(quoteHistoryHashList);
-
-            QuoteHistoryHash closePrice = computeClosePrice(quoteHistoryHashList);
-
-            QuoteHistoryHash lowPrice = computeLowPrice(quoteHistoryHashList);
-
-            QuoteHistoryHash highPrice = computeHighPrice(quoteHistoryHashList);
-
-            saveCandlestickHistory(instrument, timeChunk, openPrice, closePrice, lowPrice, highPrice);
+            if (quoteHistoryHashList.size() > 0) {
+                openDate = computeOpenDate(quoteHistoryHashList);
+                openPrice = computeOpenPrice(quoteHistoryHashList);
+                closePrice = computeClosePrice(quoteHistoryHashList);
+                lowPrice = computeLowPrice(quoteHistoryHashList);
+                highPrice = computeHighPrice(quoteHistoryHashList);
+                closeDate = computeCloseDate(quoteHistoryHashList);
+            } else {
+                CandlestickHash lastCandlestickHash = fetchLastCandlestick(instrument);
+                if (lastCandlestickHash != null) {
+                    openDate = lastCandlestickHash.getOpenTimestamp();
+                    openPrice = lastCandlestickHash.getOpenPrice();
+                    closePrice = lastCandlestickHash.getClosePrice();
+                    lowPrice = lastCandlestickHash.getLowPrice();
+                    highPrice = lastCandlestickHash.getHighPrice();
+                    closeDate = lastCandlestickHash.getCloseTimestamp();
+                }
+            }
+            saveCandlestickHistory(instrument, timeChunk, openDate, openPrice, closePrice, lowPrice, highPrice, closeDate);
         } catch (Exception ex) {
             log.error("exception happened during compute candlestick for instrument:{}", instrument.getId(), ex);
             result = false;
         }
         return result;
+    }
+
+    public CandlestickHash fetchLastCandlestick(InstrumentHash instrumentHash) {
+        List<CandlestickHash> candlestickHashList = candlestickRepository.findByIsinEquals(instrumentHash.getId());
+        Optional<CandlestickHash> optionalLastCandlestick = candlestickHashList.stream().max(Comparator.comparingDouble(CandlestickHash::getComputeTimestamp));
+        return optionalLastCandlestick.orElse(null);
     }
 
     /**
@@ -107,11 +132,23 @@ public class CandlestickService {
      *
      * @param instrument mandatory object of instrument
      * @param timeChunk  current time chunk for computing candlestick
-     * @return boolean true if successfully candlestick computed
+     * @retutn id candlestick hash
      */
-    protected void saveCandlestickHistory(InstrumentHash instrument, String timeChunk, QuoteHistoryHash openPrice, QuoteHistoryHash closePrice, QuoteHistoryHash lowPrice, QuoteHistoryHash highPrice) {
-        CandlestickHash computedCandlestick = CandlestickHash.builder().id(UUID.randomUUID().toString()).timeChunk(timeChunk).computeTimestamp(System.currentTimeMillis()).isin(instrument.getId()).openTimestamp(computeOpenDate(openPrice)).openPrice(openPrice.getPrice()).lowPrice(lowPrice.getPrice()).highPrice(highPrice.getPrice()).closePrice(closePrice.getPrice()).closeTimestamp(computeCloseDate(closePrice)).build();
-        candlestickRepository.save(computedCandlestick);
+    protected CandlestickHash saveCandlestickHistory(InstrumentHash instrument, String timeChunk, Date openDate, double openPrice,
+                                                     double closePrice, double lowPrice, double highPrice, Date closeDate) {
+        CandlestickHash computedCandlestick = CandlestickHash.builder()
+                .id(UUID.randomUUID().toString())
+                .timeChunk(timeChunk)
+                .computeTimestamp(System.currentTimeMillis())
+                .isin(instrument.getId())
+                .openTimestamp(computeOpenDate(openDate))
+                .openPrice(openPrice)
+                .lowPrice(lowPrice)
+                .highPrice(highPrice)
+                .closePrice(closePrice)
+                .closeTimestamp(computeCloseDate(closeDate))
+                .build();
+        return candlestickRepository.save(computedCandlestick);
     }
 
 
@@ -120,10 +157,10 @@ public class CandlestickService {
      * Notice that we assume the first object of list is the first received quote item
      *
      * @param quoteHistoryHashList mandatory input for list of quote history hash
-     * @return QuoteHistoryHash of opening quote price
+     * @return double of opening quote price
      */
-    protected QuoteHistoryHash computeOpenPrice(List<QuoteHistoryHash> quoteHistoryHashList) {
-        return quoteHistoryHashList.get(ConstantConfig.FIRST_QUOTE_RECEIVED_INDEX);
+    protected double computeOpenPrice(List<QuoteHistoryHash> quoteHistoryHashList) {
+        return quoteHistoryHashList.get(ConstantConfig.FIRST_QUOTE_RECEIVED_INDEX).getPrice();
     }
 
     /**
@@ -131,10 +168,10 @@ public class CandlestickService {
      * Notice that we assume the last object of list is the last received quote item
      *
      * @param quoteHistoryHashList mandatory input for list of quote history hash
-     * @return QuoteHistoryHash of closing quote price
+     * @return double of closing quote price
      */
-    protected QuoteHistoryHash computeClosePrice(List<QuoteHistoryHash> quoteHistoryHashList) {
-        return quoteHistoryHashList.get(quoteHistoryHashList.size() - 1);
+    protected double computeClosePrice(List<QuoteHistoryHash> quoteHistoryHashList) {
+        return quoteHistoryHashList.get(quoteHistoryHashList.size() - 1).getPrice();
     }
 
     /**
@@ -142,10 +179,10 @@ public class CandlestickService {
      * input quote history list are sorted based on min price
      *
      * @param quoteHistoryHashList mandatory input for list of quote history hash
-     * @return QuoteHistoryHash of low quote price
+     * @return double of lowest quote price
      */
-    protected QuoteHistoryHash computeLowPrice(List<QuoteHistoryHash> quoteHistoryHashList) {
-        return quoteHistoryHashList.stream().min(Comparator.comparingDouble(QuoteHistoryHash::getPrice)).get();
+    protected double computeLowPrice(List<QuoteHistoryHash> quoteHistoryHashList) {
+        return quoteHistoryHashList.stream().min(Comparator.comparingDouble(QuoteHistoryHash::getPrice)).get().getPrice();
     }
 
     /**
@@ -153,32 +190,65 @@ public class CandlestickService {
      * input quote history list are sorted based on max price
      *
      * @param quoteHistoryHashList mandatory input for list of quote history hash
-     * @return QuoteHistoryHash of high quote price
+     * @return double of highest quote price
      */
-    protected QuoteHistoryHash computeHighPrice(List<QuoteHistoryHash> quoteHistoryHashList) {
-        return quoteHistoryHashList.stream().max(Comparator.comparingDouble(QuoteHistoryHash::getPrice)).get();
+    protected double computeHighPrice(List<QuoteHistoryHash> quoteHistoryHashList) {
+        return quoteHistoryHashList.stream().max(Comparator.comparingDouble(QuoteHistoryHash::getPrice)).get().getPrice();
     }
 
     /**
      * The computeOpenDate method for compute open date for list of quote history hash
      * input quote history is Round Floor to compute open date
      *
-     * @param openPrice mandatory input for first quote history hash received
+     * @param receivedDate mandatory input for first quote history date received
      * @return date of open quote date
      */
-    protected Date computeOpenDate(QuoteHistoryHash openPrice) {
-        return DateUtil.getRoundFloor(openPrice.getReceivedDate());
+    protected Date computeOpenDate(Date receivedDate) {
+        return DateUtil.getRoundFloor(receivedDate.getTime());
     }
 
     /**
      * The computeCloseDate method for compute close date for list of quote history hash
      * input quote history is Round Ceiling Floor to compute close date
      *
-     * @param closePrice mandatory input for last quote history hash received
+     * @param closeDate mandatory input for last date quote history hash received
      * @return date of close quote date
      */
-    protected Date computeCloseDate(QuoteHistoryHash closePrice) {
-        return DateUtil.getRoundCeiling(closePrice.getReceivedDate());
+    protected Date computeCloseDate(Date closeDate) {
+        return DateUtil.getRoundCeiling(closeDate.getTime());
+    }
+
+
+    /**
+     * The computeOpenDate method for compute open date for list of quote history hash
+     * input quote history is Round Floor to compute open date
+     *
+     * @param quoteHistoryHashList mandatory input for list of quote history date received
+     * @return date of open quote date
+     */
+    protected Date computeOpenDate(List<QuoteHistoryHash> quoteHistoryHashList) {
+        QuoteHistoryHash quoteHistoryHash = quoteHistoryHashList.get(ConstantConfig.FIRST_QUOTE_RECEIVED_INDEX);
+        if (quoteHistoryHash != null) {
+            return DateUtil.getRoundFloor(quoteHistoryHash.getReceivedDate());
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * The computeCloseDate method for compute close date for list of quote history hash
+     * input quote history is Round Ceiling Floor to compute close date
+     *
+     * @param quoteHistoryHashList mandatory input for last date quote history hash received
+     * @return date of close quote date
+     */
+    protected Date computeCloseDate(List<QuoteHistoryHash> quoteHistoryHashList) {
+        QuoteHistoryHash quoteHistoryHash = quoteHistoryHashList.get(quoteHistoryHashList.size() - 1);
+        if (quoteHistoryHash != null) {
+            return DateUtil.getRoundCeiling(quoteHistoryHash.getReceivedDate());
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -191,7 +261,8 @@ public class CandlestickService {
     public void deleteCandlestickHistory(String isin) {
         try {
             log.info("try to delete unnecessary candlestick for instrument:{}", isin);
-            candlestickRepository.deleteAllByIsinEquals(isin);
+            List<CandlestickHash> candlestickHashList = candlestickRepository.findByIsinEquals(isin);
+            candlestickRepository.deleteAll(candlestickHashList);
             log.info("successfully delete unnecessary candlestick for instrument:{}", isin);
         } catch (Exception ex) {
             log.error("exception happened during delete unnecessary candlestick for instrument:{}", isin);

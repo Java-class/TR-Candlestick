@@ -23,13 +23,21 @@ public class QuoteHistoryService {
 
     private final QuoteHistoryRepository quoteHistoryRepository;
 
-    public void save(String isin, double price, long receivedTime) {
+    /**
+     * The save method for store new quote
+     *
+     * @param isin         mandatory input for instrument's identifier
+     * @param price        double price of quote
+     * @param receivedTime long timestamp received quote
+     * @return QuoteHistoryHash saved quote item
+     */
+    public QuoteHistoryHash save(String isin, double price, long receivedTime) {
         QuoteHistoryHash quoteHistoryHash = QuoteHistoryHash.builder()
                 .id(UUID.randomUUID().toString())
                 .isin(isin)
                 .price(price)
                 .receivedDate(receivedTime)
                 .timeChunk(DateUtil.getTimeChunk(receivedTime)).build();
-        quoteHistoryRepository.save(quoteHistoryHash);
+        return quoteHistoryRepository.save(quoteHistoryHash);
     }
 }

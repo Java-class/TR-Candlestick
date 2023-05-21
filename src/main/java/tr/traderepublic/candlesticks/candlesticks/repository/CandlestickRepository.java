@@ -24,10 +24,4 @@ public interface CandlestickRepository extends CrudRepository<CandlestickHash, S
      */
     List<CandlestickHash> findByIsinEquals(String isin);
 
-    /**
-     * The deleteAllByIsinEquals method for delete Candlestick history after remove instrument
-     *
-     * @param isin mandatory object of Instrument identifier
-     */
-    void deleteAllByIsinEquals(String isin);
 }
