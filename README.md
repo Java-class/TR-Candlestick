@@ -119,7 +119,6 @@ Every time computing job starts, it follows these steps:
 - Redis DB
 - Test Container
 
-## API Reference
 
 #### Get Candlestick history
 
