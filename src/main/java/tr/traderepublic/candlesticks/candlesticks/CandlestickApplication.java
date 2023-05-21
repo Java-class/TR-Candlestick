@@ -14,8 +14,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-public class CandlesticksApplication {
+public class CandlestickApplication {
     public static void main(String[] args) {
-        SpringApplication.run(CandlesticksApplication.class, args);
+        SpringApplication.run(CandlestickApplication.class, args);
     }
 }

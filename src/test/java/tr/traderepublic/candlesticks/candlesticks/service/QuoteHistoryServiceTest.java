@@ -1,25 +1,18 @@
 package tr.traderepublic.candlesticks.candlesticks.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.junit.ClassRule;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
+import tr.traderepublic.candlesticks.candlesticks.BaseIT;
+import tr.traderepublic.candlesticks.candlesticks.CandlestickApplication;
+import tr.traderepublic.candlesticks.candlesticks.model.data.QuoteHistoryHash;
+import tr.traderepublic.candlesticks.candlesticks.repository.QuoteHistoryRepository;
+
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
-import tr.traderepublic.candlesticks.candlesticks.CandlesticksApplication;
-import tr.traderepublic.candlesticks.candlesticks.model.data.QuoteHistoryHash;
-import tr.traderepublic.candlesticks.candlesticks.repository.QuoteHistoryRepository;
-
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,38 +25,14 @@ import static org.assertj.core.api.Assertions.fail;
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Slf4j
-@SpringBootTest(classes = CandlesticksApplication.class)
+@SpringBootTest(classes = CandlestickApplication.class)
 @Testcontainers
-class QuoteHistoryServiceTest {
+class QuoteHistoryServiceTest extends BaseIT {
 
     @Autowired
     private QuoteHistoryService quoteHistoryService;
     @Autowired
     private QuoteHistoryRepository quoteHistoryRepository;
-
-    public static final DockerImageName REDIS_IMAGE = DockerImageName.parse("redis:5.0.3-alpine");
-
-    @Container
-    @ClassRule
-    public static GenericContainer<?> redis = new GenericContainer<>(REDIS_IMAGE).withExposedPorts(6379);
-
-    @DynamicPropertySource
-    static void registerPgProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.data.redis.host", () -> redis.getHost());
-        registry.add("spring.data.redis.port", () -> redis.getMappedPort(6379));
-    }
-
-    @BeforeEach
-    public void setup() {
-        redis.start();
-    }
-
-    @Test
-    @Order(1)
-    public void _01testRedisStatus() {
-        Assertions.assertTrue(redis.isRunning());
-    }
-
 
     @Test
     @Order(2)

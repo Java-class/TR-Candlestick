@@ -31,7 +31,7 @@ public class QuoteWebSocketReader implements WebSocket.Listener {
     private final WebsocketClient websocketClient;
     private final DataProcessor processDataService;
     private final ObjectMapper objectMapper = new ObjectMapper();
-    @Value("${service.partnet.producer.address}")
+    @Value("${service.partner.producer.address}")
     private String url;
 
     /**
