@@ -1,6 +1,5 @@
 package tr.traderepublic.candlesticks.candlesticks.service;
 
-import com.github.dockerjava.zerodep.shaded.org.apache.hc.client5.http.auth.AuthStateCacheable;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.ClassRule;
 import org.junit.jupiter.api.Assertions;
@@ -20,13 +19,11 @@ import org.testcontainers.utility.DockerImageName;
 import tr.traderepublic.candlesticks.candlesticks.CandlesticksApplication;
 import tr.traderepublic.candlesticks.candlesticks.model.data.QuoteHistoryHash;
 import tr.traderepublic.candlesticks.candlesticks.repository.QuoteHistoryRepository;
-import tr.traderepublic.candlesticks.candlesticks.util.DateUtil;
 
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Mostafa Anbarmoo

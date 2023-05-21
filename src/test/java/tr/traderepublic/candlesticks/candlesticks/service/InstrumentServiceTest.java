@@ -17,6 +17,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 import tr.traderepublic.candlesticks.candlesticks.CandlesticksApplication;
+import tr.traderepublic.candlesticks.candlesticks.exceptions.InstrumentNotFoundException;
 import tr.traderepublic.candlesticks.candlesticks.model.data.CandlestickHash;
 import tr.traderepublic.candlesticks.candlesticks.model.data.InstrumentHash;
 import tr.traderepublic.candlesticks.candlesticks.model.dto.CandlestickResponseDto;
@@ -72,7 +73,8 @@ class InstrumentServiceTest {
     }
 
     @Test
-    void saveInstrument() {
+    @Order(2)
+    void _02saveInstrument() {
         try {
             String isin = UUID.randomUUID().toString();
             instrumentService.saveInstrument(isin, "this is instrument create from InstrumentServiceTest");
@@ -84,7 +86,8 @@ class InstrumentServiceTest {
     }
 
     @Test
-    void deleteInstrument() {
+    @Order(3)
+    void _03deleteInstrument() {
         try {
             String isin = UUID.randomUUID().toString();
             instrumentService.deleteInstrument(isin);
@@ -96,7 +99,8 @@ class InstrumentServiceTest {
     }
 
     @Test
-    void getCandlestickHistory() {
+    @Order(4)
+    void _04getCandlestickHistory() {
         try {
             String isin = UUID.randomUUID().toString();
             instrumentService.saveInstrument(isin, "this is instrument create from InstrumentServiceTest");
@@ -118,7 +122,20 @@ class InstrumentServiceTest {
             } else {
                 fail("error in loading candlestick history for isin:{}", isin);
             }
+        } catch (Exception ex) {
+            fail("exception happened in test get instrument.", ex);
+        }
+    }
 
+    @Test
+    @Order(5)
+    void _05getCandlestickHistoryWithException() {
+        try {
+            String isin = UUID.randomUUID().toString();
+            instrumentService.getCandlestickHistory(isin);
+        } catch (InstrumentNotFoundException ex) {
+            log.info("instrument nou found during test..");
+            assert true;
         } catch (Exception ex) {
             fail("exception happened in test get instrument.", ex);
         }

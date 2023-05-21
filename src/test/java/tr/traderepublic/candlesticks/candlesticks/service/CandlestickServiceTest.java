@@ -19,6 +19,7 @@ import org.testcontainers.utility.DockerImageName;
 import tr.traderepublic.candlesticks.candlesticks.CandlesticksApplication;
 import tr.traderepublic.candlesticks.candlesticks.model.data.CandlestickHash;
 import tr.traderepublic.candlesticks.candlesticks.model.data.InstrumentHash;
+import tr.traderepublic.candlesticks.candlesticks.model.data.QuoteHistoryHash;
 import tr.traderepublic.candlesticks.candlesticks.repository.CandlestickRepository;
 import tr.traderepublic.candlesticks.candlesticks.repository.InstrumentRepository;
 import tr.traderepublic.candlesticks.candlesticks.util.DateUtil;
@@ -162,30 +163,178 @@ class CandlestickServiceTest {
 
     @Test
     void computeClosePrice() {
+        try {
+            List<QuoteHistoryHash> quoteHistoryHashList = new ArrayList<>();
+            String randomIsin = UUID.randomUUID().toString();
+            String timeChunk = DateUtil.getTimeChunk(System.currentTimeMillis());
+            QuoteHistoryHash qh1 = QuoteHistoryHash.builder()
+                    .receivedDate(System.currentTimeMillis())
+                    .id(UUID.randomUUID().toString())
+                    .isin(randomIsin)
+                    .timeChunk(timeChunk).price(112.07).build();
+
+            QuoteHistoryHash qh2 = QuoteHistoryHash.builder()
+                    .receivedDate(System.currentTimeMillis())
+                    .id(UUID.randomUUID().toString())
+                    .isin(randomIsin)
+                    .timeChunk(timeChunk).price(119.11).build();
+
+            QuoteHistoryHash qh3 = QuoteHistoryHash.builder()
+                    .receivedDate(System.currentTimeMillis())
+                    .id(UUID.randomUUID().toString())
+                    .isin(randomIsin)
+                    .timeChunk(timeChunk).price(123.09).build();
+
+            quoteHistoryHashList.add(qh1);
+            quoteHistoryHashList.add(qh2);
+            quoteHistoryHashList.add(qh3);
+
+            double computedPrice = candlestickService.computeClosePrice(quoteHistoryHashList);
+            Assertions.assertEquals(qh3.getPrice(), computedPrice);
+        } catch (Exception ex) {
+            fail("exception happened in test compute close price.", ex);
+        }
     }
+
 
     @Test
     void computeLowPrice() {
+        try {
+            List<QuoteHistoryHash> quoteHistoryHashList = new ArrayList<>();
+            String randomIsin = UUID.randomUUID().toString();
+            String timeChunk = DateUtil.getTimeChunk(System.currentTimeMillis());
+            QuoteHistoryHash qh1 = QuoteHistoryHash.builder()
+                    .receivedDate(System.currentTimeMillis())
+                    .id(UUID.randomUUID().toString())
+                    .isin(randomIsin)
+                    .timeChunk(timeChunk).price(112.07).build();
+
+            QuoteHistoryHash qh2 = QuoteHistoryHash.builder()
+                    .receivedDate(System.currentTimeMillis())
+                    .id(UUID.randomUUID().toString())
+                    .isin(randomIsin)
+                    .timeChunk(timeChunk).price(109.11).build();
+
+            QuoteHistoryHash qh3 = QuoteHistoryHash.builder()
+                    .receivedDate(System.currentTimeMillis())
+                    .id(UUID.randomUUID().toString())
+                    .isin(randomIsin)
+                    .timeChunk(timeChunk).price(123.09).build();
+
+            quoteHistoryHashList.add(qh1);
+            quoteHistoryHashList.add(qh2);
+            quoteHistoryHashList.add(qh3);
+
+            double computedPrice = candlestickService.computeLowPrice(quoteHistoryHashList);
+            Assertions.assertEquals(qh2.getPrice(), computedPrice);
+        } catch (Exception ex) {
+            fail("exception happened in test compute lowest price.", ex);
+        }
     }
 
     @Test
     void computeHighPrice() {
+        try {
+            List<QuoteHistoryHash> quoteHistoryHashList = new ArrayList<>();
+            String randomIsin = UUID.randomUUID().toString();
+            String timeChunk = DateUtil.getTimeChunk(System.currentTimeMillis());
+            QuoteHistoryHash qh1 = QuoteHistoryHash.builder()
+                    .receivedDate(System.currentTimeMillis())
+                    .id(UUID.randomUUID().toString())
+                    .isin(randomIsin)
+                    .timeChunk(timeChunk).price(112.07).build();
+
+            QuoteHistoryHash qh2 = QuoteHistoryHash.builder()
+                    .receivedDate(System.currentTimeMillis())
+                    .id(UUID.randomUUID().toString())
+                    .isin(randomIsin)
+                    .timeChunk(timeChunk).price(137.11).build();
+
+            QuoteHistoryHash qh3 = QuoteHistoryHash.builder()
+                    .receivedDate(System.currentTimeMillis())
+                    .id(UUID.randomUUID().toString())
+                    .isin(randomIsin)
+                    .timeChunk(timeChunk).price(123.09).build();
+
+            quoteHistoryHashList.add(qh1);
+            quoteHistoryHashList.add(qh2);
+            quoteHistoryHashList.add(qh3);
+
+            double computedPrice = candlestickService.computeHighPrice(quoteHistoryHashList);
+            Assertions.assertEquals(qh2.getPrice(), computedPrice);
+        } catch (Exception ex) {
+            fail("exception happened in test compute highest price.", ex);
+        }
     }
 
     @Test
     void computeOpenDate() {
+        try {
+            List<QuoteHistoryHash> quoteHistoryHashList = new ArrayList<>();
+            String randomIsin = UUID.randomUUID().toString();
+            String timeChunk = DateUtil.getTimeChunk(System.currentTimeMillis());
+            QuoteHistoryHash qh1 = QuoteHistoryHash.builder()
+                    .receivedDate(System.currentTimeMillis())
+                    .id(UUID.randomUUID().toString())
+                    .isin(randomIsin)
+                    .timeChunk(timeChunk).price(112.07).build();
+
+            QuoteHistoryHash qh2 = QuoteHistoryHash.builder()
+                    .receivedDate(System.currentTimeMillis() + 25_000)
+                    .id(UUID.randomUUID().toString())
+                    .isin(randomIsin)
+                    .timeChunk(timeChunk).price(109.11).build();
+
+            QuoteHistoryHash qh3 = QuoteHistoryHash.builder()
+                    .receivedDate(System.currentTimeMillis())
+                    .id(UUID.randomUUID().toString())
+                    .isin(randomIsin)
+                    .timeChunk(timeChunk).price(123.09).build();
+
+            quoteHistoryHashList.add(qh1);
+            quoteHistoryHashList.add(qh2);
+            quoteHistoryHashList.add(qh3);
+
+            Date openDate = candlestickService.computeOpenDate(quoteHistoryHashList);
+            Assertions.assertEquals(DateUtil.getRoundFloor(qh1.getReceivedDate()), openDate);
+        } catch (Exception ex) {
+            fail("exception happened in test compute open date.", ex);
+        }
     }
 
     @Test
     void computeCloseDate() {
-    }
+        try {
+            List<QuoteHistoryHash> quoteHistoryHashList = new ArrayList<>();
+            String randomIsin = UUID.randomUUID().toString();
+            String timeChunk = DateUtil.getTimeChunk(System.currentTimeMillis());
+            QuoteHistoryHash qh1 = QuoteHistoryHash.builder()
+                    .receivedDate(System.currentTimeMillis())
+                    .id(UUID.randomUUID().toString())
+                    .isin(randomIsin)
+                    .timeChunk(timeChunk).price(112.07).build();
 
-    @Test
-    void testComputeOpenDate() {
-    }
+            QuoteHistoryHash qh2 = QuoteHistoryHash.builder()
+                    .receivedDate(System.currentTimeMillis() + 25_000)
+                    .id(UUID.randomUUID().toString())
+                    .isin(randomIsin)
+                    .timeChunk(timeChunk).price(109.11).build();
 
-    @Test
-    void testComputeCloseDate() {
+            QuoteHistoryHash qh3 = QuoteHistoryHash.builder()
+                    .receivedDate(System.currentTimeMillis())
+                    .id(UUID.randomUUID().toString())
+                    .isin(randomIsin)
+                    .timeChunk(timeChunk).price(123.09).build();
+
+            quoteHistoryHashList.add(qh1);
+            quoteHistoryHashList.add(qh2);
+            quoteHistoryHashList.add(qh3);
+
+            Date closeDate = candlestickService.computeCloseDate(quoteHistoryHashList);
+            Assertions.assertEquals(DateUtil.getRoundCeiling(qh3.getReceivedDate()), closeDate);
+        } catch (Exception ex) {
+            fail("exception happened in test compute open date.", ex);
+        }
     }
 
     @Test
