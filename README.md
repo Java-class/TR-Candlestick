@@ -1,7 +1,7 @@
 
 # Candlestick Computer
 
-The Spring Boot based Application for Compute and manage Canldestick based on WebSocket Partnet Service.
+The Spring Boot based Application for compute and manage Candlestick based on WebSocket Partner Service.
 
 
 ## Table of Content
@@ -13,6 +13,7 @@ The Spring Boot based Application for Compute and manage Canldestick based on We
 - API Reference
 - Authors
 - Social Media Links
+- Github Repository
 - Future Development
 ## Introduction
 The Candlestick System is a powerful tool designed to compute instrument data and quote prices in real-time using WebSocket technology, implemented in Java with Spring Boot framework and integrated with a Redis database.
@@ -88,5 +89,9 @@ All Incoming Data including both Instrument and Quote are stored in Redis DB.
 ## 🔗 Social Media Links
 [![linkedin](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/mostafa-anbarmoo)
 
+
+## Github Repository
+You can find all project source code in my github repository
+(https://github.com/Java-class/TR-Candlestick)
 
 ## Future Development
