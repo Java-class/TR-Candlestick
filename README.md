@@ -90,6 +90,16 @@ they received.
 Another Process under this algorithm is, there is a scheduled job service and its run every minute.Besides its
 configurable and based on desired time chunk (in this sample time chunk is a minute).
 
+**The Candlestick Compute Service**
+
+Every time computing job starts, it follows these steps:
+
+- Fetch all available instrument from database
+- For each instrument
+  - 
+
+
+
 ## Tech Stack
 
 - Java 17
