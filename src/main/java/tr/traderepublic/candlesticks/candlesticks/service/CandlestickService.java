@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 import tr.traderepublic.candlesticks.candlesticks.consts.ConstantConfig;
@@ -51,7 +52,7 @@ public class CandlestickService {
      * The computeCandlestickJob for compute previous time chunk
      * We Call computeCandlestick for each valid instrument
      */
-    //@Scheduled(fixedRateString = "${service.candlestick.schedule.time.rate}")
+    @Scheduled(fixedRateString = "${service.candlestick.schedule.time.rate}")
     public void computeCandlestickJob() {
         try {
             log.info("start to compute candlestick data...");
@@ -131,7 +132,7 @@ public class CandlestickService {
      *
      * @param instrument mandatory object of instrument
      * @param timeChunk  current time chunk for computing candlestick
-     * @retutn CandlestickHash item
+     * @return CandlestickHash item
      */
     protected CandlestickHash saveCandlestickHistory(InstrumentHash instrument, String timeChunk, Date openDate, double openPrice,
                                                      double lowPrice, double highPrice, double closePrice, Date closeDate) {
