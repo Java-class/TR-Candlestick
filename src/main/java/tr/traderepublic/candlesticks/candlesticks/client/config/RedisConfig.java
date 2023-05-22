@@ -27,7 +27,7 @@ public class RedisConfig {
     private Integer port;
 
     /**
-     * @see "This method creates redis connection factory"
+     * This method creates redis connection factory
      * @return RedisConnectionFactory Object
      */
     @Bean
@@ -36,7 +36,7 @@ public class RedisConfig {
     }
 
     /**
-     * @see "This method creates redis template"
+     * This method creates redis template
      * @param connectionFactory  is a mandatory object for create redis template
      * @return Redis Template Object
      */
