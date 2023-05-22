@@ -9,6 +9,7 @@ The Spring Boot based Application for compute and manage Candlestick based on We
 - Redis Structure
 - Compute Algorithm
 - Tech Stack
+- Run And Deployment
 - API Reference
 - Authors
 - Social Media Links
@@ -40,7 +41,7 @@ with minimal latency.
 The Candlestick System computes candlestick charts, a popular visual representation of financial instrument price
 movements over time. It analyzes incoming quote data, aggregates it into fixed time intervals (such as minutes or
 hours), and generates candlestick data points. These points contain information such as the opening price, closing
-price, highest price, and lowest price within the specified time interval.
+price, the highest price, and lowest price within the specified time interval.
 
 The system continuously updates the candlestick charts as new quote data arrives, ensuring that users have access to the
 most recent and accurate representation of price movements. Users can subscribe to specific instruments or customize
@@ -83,7 +84,8 @@ All Incoming Data including both Instrument and Quote are stored in Redis DB.
 
 ## Compute Algorithm
 
-The basic idea behind the computing algorithm is storing all instruments and quote those are listened to by websocket and
+The basic idea behind the computing algorithm is storing all instruments and quote those are listened to by websocket
+and
 store it on Redis.
 Redis is a High-Available Database Server, It's fast and scalable with cluster, so we can store incoming data as soon as
 they are received.
@@ -108,7 +110,8 @@ Every time computing job starts, it follows these steps:
     - Calculate the close price date. It's the last element of a quote fetched list.
     - Calculate the close price. It's the last element of a quote fetched list.
     - Create new Candlestick Hash based on Calculated data and store in Redis.
-    - If quote's list was empty, it means there isn't any new quote written in websocket, so we must calculate the current
+    - If quote's list was empty, it means there isn't any new quote written in websocket, so we must calculate the
+      current
       candlestick based on the last candlestick from redis.
 
 ## Tech Stack
@@ -118,12 +121,22 @@ Every time computing job starts, it follows these steps:
 - Maven
 - Redis DB
 - Test Container
+- JIB for Dockerized the application
 
+## Run And Deployment
 
-#### Get Candlestick history
+For run this project, you must install docker first and after that doing flowing steps.
+JIB configuration is not completed yet, so you must follow these steps.
+
+- Pull redis image and start the redis container on port 6379
+- Start the partner-service application with java command or using the docker compose
+- Build Artifact whit maven and start with java command.
+
+## API Reference 
+ - Get Candlestick history
 
 ```http
-  GET /candlesticks
+  GET http://localhost:8182/candlesticks
 ```
 
 | Parameter | Type     | Description                         |
@@ -144,3 +157,8 @@ You can find all project source code in my GitHub repository
 (https://github.com/Java-class/TR-Candlestick)
 
 ## Future Development
+
+In this project, we work with single instance of application. Besides, Redis is run with single instance. If you want to
+scale up the project, you should use cluster of redis for high availability.
+Another improvement is, instead of saving incoming quote in redis immediately, you can add a message broker (like Apache
+Kafka) and after that all instance of project consume the incoming data.
