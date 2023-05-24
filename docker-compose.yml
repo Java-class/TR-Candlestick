@@ -7,21 +7,13 @@ services:
     command: bash -c "cd /app && java -jar partner-service-1.0.1-all.jar --port=8032"
     ports:
       - "8032:8032"
-#    networks:
-#      - my-network
-#  redis:
-#    image: "redis:latest"
-#    ports:
-#      - "6379:6379"
-#    networks:
-#      - my-network
-#  candlestick:
-#    image: "javaclassir/candlestick:latest"
-#    ports:
-#      - "8182:8182"
-#    networks:
-#      - my-network
-#
-#networks:
-#  my-network:
-#    driver: bridge
+
+  redis:
+    image: "redis:latest"
+    ports:
+      - "6379:6379"
+
+  candlestick:
+    image: "javaclassir/candlestick"
+    ports:
+      - "8182:8182"
