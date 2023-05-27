@@ -126,7 +126,6 @@ Every time computing job starts, it follows these steps:
 ## Run And Deployment
 
 For run this project, you must install docker first and after that doing flowing steps.
-JIB configuration is not completed yet, so you must follow these steps.
 
 - Pull redis image and start the redis container on port 6379
 - Start the partner-service application with java command
