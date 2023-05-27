@@ -127,7 +127,7 @@ Every time computing job starts, it follows these steps:
 
 For run this project, you must install docker first and after that doing flowing steps.
 
-- Pull redis image and start the redis container on port 6379
+- Pull the latest Redis image and start the Redis container on port 6379
 - Start the partner-service application with java command
 - Build Artifact with maven and start candlestick application with java command.
 - Or run with docker compose with command docker-compose up -d
