@@ -129,8 +129,9 @@ For run this project, you must install docker first and after that doing flowing
 JIB configuration is not completed yet, so you must follow these steps.
 
 - Pull redis image and start the redis container on port 6379
-- Start the partner-service application with java command or using the docker compose
-- Build Artifact whit maven and start with java command.
+- Start the partner-service application with java command
+- Build Artifact with maven and start candlestick application with java command.
+- Or run with docker compose with command docker-compose up -d
 
 ## API Reference 
  - Get Candlestick history
